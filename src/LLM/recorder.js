@@ -1,6 +1,6 @@
 // @ts-check
 
-import {CHAT_HISTORY_LIMIT, CHAT_MODEL} from "../consts.js";
+import {CHAT_HISTORY_LIMIT, CHAT_MODEL, ENABLE_LONG_TERM_MEMORY} from "../consts.js";
 import { callLLM } from "./client.js";
 import { addMemory, makeMemoryUserId } from "./long-term-memory.js";
 import config from "../config/index.js";
@@ -63,7 +63,7 @@ export class ChatRecorder {
         if (!this._needsSummarization || this._cache.length === 0) return;
 
         // 1. 如果存在旧的概括，先存入长期记忆（放在 messages 中，标注为对话摘要）
-        if (this._midSummary) {
+        if (ENABLE_LONG_TERM_MEMORY && this._midSummary) {
             const userId = makeMemoryUserId(config.targetGroupId);
             await addMemory(userId, [
                 { role: "user", content: `对话摘要：${this._midSummary}` },

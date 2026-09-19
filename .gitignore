@@ -1,0 +1,20 @@
+# 依赖目录
+node_modules/
+
+# 环境变量文件（含密钥，绝不能上传）
+.env
+.env.local
+.env.*.local
+
+# 日志
+*.log
+logs/
+
+# 运行时数据
+data/
+*.sqlite
+*.db
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db

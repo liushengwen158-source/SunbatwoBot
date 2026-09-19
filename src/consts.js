@@ -40,6 +40,9 @@ export const QW_BASE_URL = "https://m454e6xkq4.re.qweatherapi.com/v7";
 /**和风城市id查询url */
 export const QW_GEO_BASE = "https://m454e6xkq4.re.qweatherapi.com/geo/v2";
 
+/** 是否启用长期记忆（阿里云百炼记忆库）。关闭后只保留短期+中期记忆 */
+export const ENABLE_LONG_TERM_MEMORY = false;
+
 /** 长期记忆 API 基础地址 */
 export const MEMORY_API_BASE_URL =
     "https://ws-j92tdnb3txh89s68.cn-beijing.maas.aliyuncs.com/api/v2/apps/memory";
