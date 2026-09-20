@@ -4,6 +4,10 @@ import getSentence from "../../services/hitokoto.js";
 import getAcg from "../../services/acg.js";
 import getSunGirl from "../../data/sunbatwo-girls.js";
 import recorder from "../../llm/recorder.js";
+import {
+    GIRL_IMAGE_LIMIT_COUNT,
+    GIRL_IMAGE_LIMIT_TIME,
+} from "../../consts.js";
 
 /**
  * 关键词命令处理器
@@ -30,20 +34,26 @@ CMD_MAP.set("来张图", async (ctx) => {
     }
 });
 
-CMD_MAP.set("来只孙巴二娘", async (ctx) => {
+/** 紫薯娘图片限流状态（全群共享） */
+let girlCount = 0;
+let girlLastTime = Date.now();
+
+CMD_MAP.set("来只紫薯娘", async (ctx) => {
+    const nowTime = Date.now();
+    if (nowTime - girlLastTime > GIRL_IMAGE_LIMIT_TIME) {
+        girlLastTime = nowTime;
+        girlCount = 0;
+    }
+    if (girlCount >= GIRL_IMAGE_LIMIT_COUNT) {
+        ctx.adapter.sendGroupMsg(
+            ctx.event.group_id,
+            "本小时的紫薯娘已经发完啦，过会儿再来",
+        );
+        return;
+    }
+    girlCount++;
     ctx.adapter.sendGroupMsg(ctx.event.group_id, [
         { type: "image", data: { file: getSunGirl() } },
-    ]);
-});
-
-CMD_MAP.set("来只牛魔", async (ctx) => {
-    ctx.adapter.sendGroupMsg(ctx.event.group_id, [
-        {
-            type: "image",
-            data: {
-                file: "https://img.tofaka.com/autoupload/f/8d522/20260817/myLT/2048X2048/0.png",
-            },
-        },
     ]);
 });
 
