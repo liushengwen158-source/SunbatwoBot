@@ -20,6 +20,9 @@ const LOCAL_IMAGE_URLS = [
     "https://picui.ogmua.cn/s1/2026/09/20/6aafedec80b11.webp",
     "https://picui.ogmua.cn/s1/2026/09/20/6aafedf35b3e0.webp",
     "https://picui.ogmua.cn/s1/2026/09/20/6aafedf35b396.webp",
+    "https://picui.ogmua.cn/s1/2026/09/20/6aaff0ad4fcf4.webp",
+    "https://picui.ogmua.cn/s1/2026/09/20/6aaff0b8266b0.webp",
+    "https://picui.ogmua.cn/s1/2026/09/20/6aaff0bbae7d0.webp",
 ];
 
 /**
