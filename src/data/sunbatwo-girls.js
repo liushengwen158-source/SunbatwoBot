@@ -3,7 +3,7 @@
 import getRandomInt from "../utils/random.js";
 
 /**
- * 孙巴二娘图片 URL 列表
+ * 紫薯娘图片 URL 列表
  */
 
 const IMAGE_URLS = [
@@ -20,10 +20,10 @@ const IMAGE_URLS = [
 ];
 
 /**
- * 随机获取一张孙巴二娘图片 URL
+ * 随机获取一张紫薯娘图片 URL
  * @returns {string}
  */
-export default function getRandomSunbatwoGirl() {
+export default function getRandomZishuGirl() {
     const idx = getRandomInt(0, IMAGE_URLS.length - 1);
     return IMAGE_URLS[idx];
 }

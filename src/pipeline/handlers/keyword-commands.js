@@ -2,7 +2,7 @@
 
 import getSentence from "../../services/hitokoto.js";
 import getAcg from "../../services/acg.js";
-import getSunGirl from "../../data/sunbatwo-girls.js";
+import getZishuGirl from "../../data/sunbatwo-girls.js";
 import recorder from "../../llm/recorder.js";
 import {
     GIRL_IMAGE_LIMIT_COUNT,
@@ -53,7 +53,7 @@ CMD_MAP.set("来只紫薯娘", async (ctx) => {
     }
     girlCount++;
     ctx.adapter.sendGroupMsg(ctx.event.group_id, [
-        { type: "image", data: { file: getSunGirl() } },
+        { type: "image", data: { file: getZishuGirl() } },
     ]);
 });
 
