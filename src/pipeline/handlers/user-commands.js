@@ -1,8 +1,8 @@
 // @ts-check
 
 import { getWeatherText } from "../../services/weather.js";
-import recorder from "../../llm/recorder.js";
-import {setting, setting as proactive_chat_setting} from "./proactive-chat.js";
+import { getRecorder } from "../../llm/recorder.js";
+import { getProactiveState } from "./proactive-chat.js";
 
 /**
  * 用户命令处理器
@@ -18,6 +18,7 @@ USER_CMD_MAP.set("gw", async (args, ctx) => {
 
 USER_CMD_MAP.set("clear", async (args, ctx) => {
     if(!ctx.isAdmin) return "无权限";
+    const recorder = getRecorder(ctx.event.group_id);
     const cnt = recorder.length;
     recorder.clear();
     return `清除了${cnt}条消息。`;
@@ -42,7 +43,7 @@ USER_CMD_MAP.set("help", async (args, ctx) => {
 
 USER_CMD_MAP.set("msgs", async (args, ctx) => {
     if (!ctx.isAdmin) return "无权限";
-    const all = recorder.getAll();
+    const all = getRecorder(ctx.event.group_id).getAll();
     if (all.length === 0) return "短期记录为空";
     const lines = all.map((m, i) => `[${i + 1}] ${m.role}: ${m.content.slice(0, 80)}`);
     return `短期记录共 ${all.length} 条：\n${lines.join("\n")}`;
@@ -50,19 +51,20 @@ USER_CMD_MAP.set("msgs", async (args, ctx) => {
 
 USER_CMD_MAP.set("summary", async (args, ctx) => {
     if (!ctx.isAdmin) return "无权限";
-    const summary = recorder.getMidSummary();
+    const summary = getRecorder(ctx.event.group_id).getMidSummary();
     if (!summary) return "中期记忆为空";
     return `中期记忆（${summary.length} 字）：\n${summary}`;
 });
 
 USER_CMD_MAP.set("pchat", async (args, ctx) => {
     if(args.length===0) return "缺少参数 true/false";
+    const state = getProactiveState(ctx.event.group_id);
     if(args[0]==="true"){
-        setting.enable = true;
+        state.enable = true;
         return "开启了主动回复"
     }
     else {
-        setting.enable = false;
+        state.enable = false;
         return "关闭了主动回复"
     }
 })

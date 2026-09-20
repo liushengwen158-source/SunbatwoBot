@@ -1,7 +1,7 @@
 {
   "name": "sunbatwobot",
   "version": "1.1.0",
-  "description": "A OneBot11 QQ bot based on NapCat, supports LLM conversation, image vision capability and custom message processing.",
+  "description": "A OneBot11 QQ bot based on NapCat (mascot: Zishu-chan), supports LLM conversation with per-group isolated memory across multiple QQ groups, image vision capability and custom message processing.",
   "scripts": {
     "start": "node src/index.js"
   },

@@ -46,7 +46,7 @@ export default async function runPipeline(event, adapter) {
     // 2. 构建上下文
     const ctx = buildContext(event, adapter);
 
-    // 3. 过滤：仅处理目标群消息
+    // 3. 过滤：仅处理位于目标群列表中的群消息
     if (!ctx.isTargetGroup) return;
 
     logger.debug(`处理消息: ${ctx.senderName}: ${ctx.text}`);

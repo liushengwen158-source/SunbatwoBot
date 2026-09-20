@@ -3,7 +3,7 @@
 import {CHAT_HISTORY_LIMIT, CHAT_MODEL, ENABLE_LONG_TERM_MEMORY} from "../consts.js";
 import { callLLM } from "./client.js";
 import { addMemory, makeMemoryUserId } from "./long-term-memory.js";
-import config from "../config/index.js";
+
 /**
  * 对话上下文管理器（三层记忆）
  *
@@ -14,9 +14,10 @@ import config from "../config/index.js";
  */
 export class ChatRecorder {
     /**
+     * @param {string|number} [groupId] 所属群号（用于长期记忆隔离）
      * @param {number} [limit] 最大消息条数
      */
-    constructor(limit = CHAT_HISTORY_LIMIT) {
+    constructor(groupId = "", limit = CHAT_HISTORY_LIMIT) {
         /** @type {Array<{role: string, content: string}>} */
         this._messages = [];
         /** @type {Array<{role: string, content: string}>} */
@@ -25,6 +26,8 @@ export class ChatRecorder {
         this._midSummary = "";
         this._limit = limit;
         this._needsSummarization = false;
+        /** @type {string} 所属群号 */
+        this.groupId = groupId?.toString() ?? "";
     }
 
     /**
@@ -64,7 +67,7 @@ export class ChatRecorder {
 
         // 1. 如果存在旧的概括，先存入长期记忆（放在 messages 中，标注为对话摘要）
         if (ENABLE_LONG_TERM_MEMORY && this._midSummary) {
-            const userId = makeMemoryUserId(config.targetGroupId);
+            const userId = makeMemoryUserId(this.groupId);
             await addMemory(userId, [
                 { role: "user", content: `对话摘要：${this._midSummary}` },
             ]);
@@ -109,7 +112,23 @@ export class ChatRecorder {
     }
 }
 
-/** 默认单例实例 */
-export const chatRecorder = new ChatRecorder();
+/** 按群隔离的对话记录器集合 */
+const recorders = new Map();
 
-export default chatRecorder;
+/**
+ * 获取指定群的对话记录器（不存在则创建）
+ * 每个群拥有独立的短期 / 中期记忆，互不干扰
+ * @param {string|number} groupId 群号
+ * @returns {ChatRecorder}
+ */
+export function getRecorder(groupId) {
+    const key = groupId?.toString() ?? "default";
+    let rec = recorders.get(key);
+    if (!rec) {
+        rec = new ChatRecorder(key);
+        recorders.set(key, rec);
+    }
+    return rec;
+}
+
+export default getRecorder;

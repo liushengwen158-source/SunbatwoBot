@@ -12,16 +12,19 @@ import members from "../data/members.js";
 export function buildContext(event, adapter) {
     const text = extractText(event.message || []);
     const userId = event.user_id?.toString();
+    const groupId = event.group_id?.toString();
     const isAdmin = userId === config.owner;
     const isTargetGroup =
         event.message_type === "group" &&
-        event.group_id?.toString() === config.targetGroupId;
+        groupId !== undefined &&
+        config.targetGroupIds.includes(groupId);
 
     return {
         event,
         adapter,
         text,
         userId,
+        groupId,
         senderName: resolveName(event),
         isAdmin,
         isTargetGroup,

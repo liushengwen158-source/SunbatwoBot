@@ -26,8 +26,11 @@ const config = {
     /** NapCat HTTP API 地址（不含协议前缀） */
     napcatHttpHost: process.env.HTTP_SERVER || "127.0.0.1:3000",
 
-    /** 目标群 ID */
-    targetGroupId: process.env.TARGET_GROUP_ID || "",
+    /** 目标群 ID 列表（支持配置多个群，用英文逗号分隔） */
+    targetGroupIds: (process.env.TARGET_GROUP_ID || "")
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
 
     /** 机器人自身 QQ 号 */
     selfId: process.env.BOT_SELF_ID,

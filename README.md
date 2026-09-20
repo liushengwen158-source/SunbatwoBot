@@ -1,13 +1,14 @@
 # SunbatwoBot
 
-这是一个基于 NapCat + OneBot v11 协议的 QQ 机器人服务端。包含了一些已经开发好的功能，
-如关键词识别、执行指令、ai对话等。
+这是一个基于 NapCat + OneBot v11 协议的 QQ 机器人服务端，代号「紫薯娘」。包含了一些已经开发好的功能，
+如关键词识别、执行指令、AI 对话等，支持同时接入多个 QQ 群。
 
 该项目的AI对话还在继续开发中，目前已经支持：
 - 识别图片内容
 - 区别不同的发言人
 - 主动发言、发送多条消息
 - 联网搜索
+- **多群独立运行**（可同时配置多个目标群，每个群拥有各自独立的对话记忆与限流状态）
 - **长期记忆**（基于阿里云百炼记忆库，自动存储和召回对话历史中的关键信息）
 
 你可以快速地配置并使用该项目，或者扩展开发自己想要的功能。
@@ -44,8 +45,8 @@ BOT_SELF_ID=1234567890
 # 主人 QQ 号（管理员命令使用）
 OWNER=1234567890
 
-# 目标群 ID（机器人只处理该群消息）
-TARGET_GROUP_ID=123456789
+# 目标群 ID 列表（机器人只处理列表内的群消息，多个群用英文逗号分隔）
+TARGET_GROUP_ID=123456789,987654321
 
 # NapCat HTTP API 地址（用于 get_image 等 HTTP 操作）
 HTTP_SERVER=127.0.0.1:3000
@@ -199,7 +200,7 @@ bot/adapter.js 解析 JSON 事件
     ▼
 pipeline/index.js 管道编排器
     │
-    ├─ 过滤：仅处理 message 事件 + 目标群
+    ├─ 过滤：仅处理 message 事件 + 目标群列表中的群
     │
     ├─ 中间件（全部执行）
     │   ├─ image-recognizer  → ctx.imageDescription
@@ -225,9 +226,10 @@ pipeline/index.js 管道编排器
     adapter,        // OneBotAdapter 实例（用于发送消息）
     text,           // 提取的纯文本
     userId,         // 发送者 QQ 号
+    groupId,        // 群号
     senderName,     // 解析后的昵称
     isAdmin,        // 是否管理员
-    isTargetGroup,  // 是否目标群
+    isTargetGroup,  // 是否目标群（在 TARGET_GROUP_ID 列表中）
     isAtBot,        // 是否 @了机器人
     imageDescription, // 图片识别描述
     handled        // 是否已被处理
@@ -236,7 +238,8 @@ pipeline/index.js 管道编排器
 
 ### 四层记忆系统
 
-AI 对话使用逐层压缩的记忆架构，在上下文窗口限制与长期信息保留之间取得平衡(30条为示例)：
+AI 对话使用逐层压缩的记忆架构，在上下文窗口限制与长期信息保留之间取得平衡(30条为示例)。
+记忆按群隔离：每个群通过 `getRecorder(groupId)` 获取独立的 `ChatRecorder` 实例，群与群之间的上下文互不干扰。
 
 ```
 短期记忆（_messages）

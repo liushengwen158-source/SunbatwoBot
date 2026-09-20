@@ -1,6 +1,6 @@
 // @ts-check
 
-import recorder from "../../llm/recorder.js";
+import { getRecorder } from "../../llm/recorder.js";
 import logger from "../../utils/logger.js";
 
 /**
@@ -20,7 +20,7 @@ export default async function miniProgram(ctx) {
                 if (title) {
                     logger.info("小程序消息:", seg.data.data);
                     const text = `${ctx.senderName}:\n[分享了${title}消息]`;
-                    recorder.add({ role: "user", content: text });
+                    getRecorder(ctx.event.group_id).add({ role: "user", content: text });
                     ctx.handled = true;
                     return true;
                 }

@@ -1,9 +1,8 @@
 // @ts-check
 
 import { callLLM } from "./client.js";
-import { chatRecorder } from "./recorder.js";
+import { getRecorder } from "./recorder.js";
 import { CHAT_MODEL, ENABLE_LONG_TERM_MEMORY } from "../consts.js";
-import config from "../config/index.js";
 import logger from "../utils/logger.js";
 import { searchMemory, makeMemoryUserId } from "./long-term-memory.js";
 
@@ -11,7 +10,7 @@ import { searchMemory, makeMemoryUserId } from "./long-term-memory.js";
  * 系统提示词：定义 AI 的聊天人格和行为约束
  */
 const SYSTEM_PROMPT =
-    "你是「智能金融协会」QQ群的吉祥物，名字叫小金，性格活泼搞怪、爱玩梗，是群里活跃气氛的开心果，也懂点金融小知识\n" +
+    "你是QQ群里的群宠机器人，名字叫「紫薯娘」，本体是一只可爱的小紫薯，性格活泼搞怪、爱玩梗、偶尔有点小傲娇，是群里活跃气氛的开心果\n" +
     "行为约束：\n" +
     "1.不许编造任何内容\n" +
     "2.问题模糊就简短反问，不要大段猜测\n" +
@@ -40,26 +39,29 @@ const SYSTEM_PROMPT =
 
 /**
  * 发送一条用户消息给 AI，获取回复
+ * @param {string|number} groupId 群号（决定使用哪个群的独立记忆）
  * @returns {Promise<ChatResult|string>}
  *   成功返回 {acts, tokens}，失败返回错误字符串
  */
-export default async function chat() {
+export default async function chat(groupId) {
+    const recorder = getRecorder(groupId);
+
     // 触发中期记忆概括（如需）
-    await chatRecorder.summarizeCache();
+    await recorder.summarizeCache();
 
     // 构造请求消息列表
     const messages = [
         { role: "system", content: SYSTEM_PROMPT },
-        ...(chatRecorder.getMidSummary()
-            ? [{ role: "system", content: `对话历史概要：${chatRecorder.getMidSummary()}` }]
+        ...(recorder.getMidSummary()
+            ? [{ role: "system", content: `对话历史概要：${recorder.getMidSummary()}` }]
             : []),
-        ...chatRecorder.getAll(),
+        ...recorder.getAll(),
     ];
 
     // 搜索长期记忆：用最近的短期对话作为查询上下文
-    const shortTermMessages = chatRecorder.getAll();
+    const shortTermMessages = recorder.getAll();
     if (ENABLE_LONG_TERM_MEMORY && shortTermMessages.length > 0) {
-        const userId = makeMemoryUserId(config.targetGroupId);
+        const userId = makeMemoryUserId(groupId);
         const recalled = await searchMemory(userId, shortTermMessages.slice(-10));
         if (recalled.length > 0) {
             for (const content of recalled) {
@@ -97,7 +99,7 @@ export default async function chat() {
         const replyContent = parsed.action.map((e) => e.content ?? "").join("\n");
 
         // 记录 AI 回复
-        chatRecorder.add({ role: "assistant", content: replyContent });
+        recorder.add({ role: "assistant", content: replyContent });
     }
 
     return {

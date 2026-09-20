@@ -34,7 +34,7 @@ export const SENTENCE_LIMIT_COUNT = 3;
 /** 紫薯娘图片限流：时间窗口（毫秒） */
 export const GIRL_IMAGE_LIMIT_TIME = 3600000;
 
-/** 紫薯娘图片限流：窗口内最大次数（全群共享） */
+/** 紫薯娘图片限流：窗口内最大次数（每群独立，群内共享） */
 export const GIRL_IMAGE_LIMIT_COUNT = 3;
 
 /** 复读检测队列长度 */
