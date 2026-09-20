@@ -167,7 +167,7 @@ src/
 │
 ├── data/                       # 静态数据
 │   ├── members.js              # QQ号 → 昵称映射（注意，这个需要自行配置）
-│   └── sunbatwo-girls.js       # 孙巴二娘图片 URL 列表
+│   └── sunbatwo-girls.js       # 紫薯娘图片 URL 列表
 │
 ├── tools/                      # 工具函数
 │   ├── repeater.js             # 复读检测算法
