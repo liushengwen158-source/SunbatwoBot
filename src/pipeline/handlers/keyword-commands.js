@@ -41,13 +41,13 @@ const girlLimits = new Map();
 /**
  * 获取指定群的紫薯娘限流状态（不存在则创建）
  * @param {string|number} groupId 群号
- * @returns {{count: number, lastTime: number}}
+ * @returns {{count: number, lastTime: number, notified: boolean}}
  */
 function getGirlLimit(groupId) {
     const key = groupId?.toString() ?? "default";
     let limit = girlLimits.get(key);
     if (!limit) {
-        limit = { count: 0, lastTime: Date.now() };
+        limit = { count: 0, lastTime: Date.now(), notified: false };
         girlLimits.set(key, limit);
     }
     return limit;
@@ -59,12 +59,16 @@ CMD_MAP.set("来只紫薯娘", async (ctx) => {
     if (nowTime - limit.lastTime > GIRL_IMAGE_LIMIT_TIME) {
         limit.lastTime = nowTime;
         limit.count = 0;
+        limit.notified = false;
     }
     if (limit.count >= GIRL_IMAGE_LIMIT_COUNT) {
-        ctx.adapter.sendGroupMsg(
-            ctx.event.group_id,
-            "本小时的紫薯娘已经发完啦，过会儿再来",
-        );
+        if (!limit.notified) {
+            limit.notified = true;
+            ctx.adapter.sendGroupMsg(
+                ctx.event.group_id,
+                "本小时的紫薯娘已经发完啦，过会儿再来",
+            );
+        }
         return;
     }
     limit.count++;
